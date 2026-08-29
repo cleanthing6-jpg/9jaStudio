@@ -201,7 +201,7 @@ plan_col1, plan_col2, plan_col3 = st.columns(3, gap="medium")
 with plan_col1:
     st.markdown("""
     <div class="studio-card">
-        <p style="color: #ff5e3a; font-weight:700; font-size:12px; uppercase; margin:0;">Allocation Base</p>
+        <p style="color: #ff5e3a; font-weight:700; font-size:12px; text-transform: uppercase; margin:0;">Allocation Base</p>
         <h3 style="margin-top:5px;">Free Starter Tier</h3>
         <h2 style="color:#ffffff; margin:10px 0;">₦0 / $0</h2>
         <p style="font-size:14px; color:#8a8f98; line-height:1.6;">
