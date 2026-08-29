@@ -49,9 +49,9 @@ with tab1:
                         
                         client = InferenceClient(token=HF_TOKEN)
                         
-                        # Trigger the live music model via Hugging Face SDK
+                        # FIX: Changed 'prompt=' to 'text=' to align perfectly with the updated Hugging Face Hub SDK parameters
                         audio_data = client.text_to_speech(
-                            prompt=optimized_prompt,
+                            text=optimized_prompt,
                             model="facebook/musicgen-small"
                         )
                         
