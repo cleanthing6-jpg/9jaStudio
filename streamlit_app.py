@@ -3,39 +3,25 @@ import streamlit as st
 import replicate
 import requests
 
-# 1. CORE THEME & BRAND CONFIGURATION
+# 1. CORE CONNECTORS & APP CONFIGURATION
 st.set_page_config(page_title="9jaStudio Pro", layout="wide")
 
-# Custom Sleek Dark-Mode Injector
-st.markdown("""
-    <style>
-        .stApp { background-color: #0d0e12; color: #e4e6eb; font-family: sans-serif; }
-        h1, h2, h3 { color: #ffffff !important; }
-        div.stButton > button:first-child {
-            background: linear-gradient(135deg, #ff5e3a 0%, #ff2a5f 100%) !important;
-            color: white !important; font-weight: bold !important; border: none !important;
-            padding: 12px !important; border-radius: 8px !important; width: 100%;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-# 2. SEED CONNECTORS & SECURITY ENGINES
 REPLICATE_API_TOKEN = st.secrets.get("REPLICATE_API_TOKEN", os.environ.get("REPLICATE_API_TOKEN", ""))
 os.environ["REPLICATE_API_TOKEN"] = REPLICATE_API_TOKEN
 
 st.title("🇳🇬 9jaStudio Pro — AI Audio Console")
 st.caption("High-tier text-to-music generation, multi-stem synthesis, and adaptive commercial mastering grid.")
 
-# Active Memory Anchors so generated files don't disappear on click
+# Session Memory Anchors so generated files don't disappear on click
 if "generated_beat_bytes" not in st.session_state:
     st.session_state.generated_beat_bytes = None
 if "generated_beat_name" not in st.session_state:
     st.session_state.generated_beat_name = None
 
 user_email = st.text_input("Studio Session Identity Account Email", value="independent_artist@9ja.com")
-st.success("🟢 Account Status: Active Workspace | Remaining Studio Credits: 2 Master Sessions")
+st.info("🟢 Account Status: Active Workspace | Remaining Studio Credits: 2 Master Sessions")
 
-# 3. INTERACTIVE CONSOLE MODULES
+# 2. INTERACTIVE CONSOLE MODULES
 tab1, tab2 = st.tabs(["🥁 MODULE 1: AI INSTANT BEAT LAB", "🎛️ MODULE 2: MULTI-STEM MIX & MASTER"])
 
 with tab1:
@@ -48,7 +34,7 @@ with tab1:
         tempo = st.slider("BPM Speed Calibration", 90, 140, 112)
         drum_profile = st.selectbox("Sub-Bass Profile Signature", ["Heavy Asake Style Log", "Deep Kabza Ambient Sub"])
         
-        generate_beat_btn = st.button("🔥 COMPILE & EXECUTE AI SYNTHESIS CHAIN")
+        generate_beat_btn = st.button("🔥 COMPILE & EXECUTE AI SYNTHESIS")
         
     with col2:
         if generate_beat_btn:
@@ -87,7 +73,7 @@ with tab2:
     if engineer_btn:
         st.info("🎚️ MIXDOWN GRID ROUTED SUCCESSFULLY")
 
-# 4. DIGITAL WALLET & INTEGRATED BILLING GATE
+# 3. DIGITAL WALLET & INTEGRATED BILLING GATE
 st.markdown("---")
 st.header("💳 Billing Allocation & Studio Upgrades")
 currency = st.radio("Select Settings Profile Currency", ["Pay in Nigerian Naira (₦ NGN)", "Pay in US Dollars ($ USD)"])
@@ -96,11 +82,11 @@ col_a, col_b = st.columns(2)
 with col_a:
     price_pro = "15,000 NGN / Month" if "Naira" in currency else "$25 USD / Month"
     pro_link = "https://paystack.com" if "Naira" in currency else "https://paystack.com"
-    st.write(f"### 🚀 Pro Monthly Tier\nPrice: **{price_pro}**\n\n• 30 Dedicated Monthly Song Tokens\n• High-Priority GPU Compute Lanes")
+    st.write(f"### 🚀 Pro Monthly Tier\nPrice: **{price_pro}**\n\n• 30 Dedicated Monthly Song Tokens")
     st.link_button("🔒 INITIALIZE SECURE PRO UPGRADE", pro_link)
 
 with col_b:
     price_pre = "50,000 NGN / Year" if "Naira" in currency else "$80 USD / Year"
     premium_link = "https://paystack.com" if "Naira" in currency else "https://paystack.com"
-    st.write(f"### 👑 Premium Annual Pass\nPrice: **{price_pre}**\n\n• 60 Dedicated Annual Song Tokens\n• Zero-Delay Server Compute Nodes")
+    st.write(f"### 👑 Premium Annual Pass\nPrice: **{price_pre}**\n\n• 60 Dedicated Annual Song Tokens")
     st.link_button("🔒 SECURE EXECUTIVE PASS", premium_link)
