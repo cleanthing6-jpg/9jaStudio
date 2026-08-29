@@ -1,11 +1,11 @@
 import os
 import streamlit as st
-import requests
+from huggingface_hub import InferenceClient
 
 # 1. PAGE SETUP & CONFIGURATION
 st.set_page_config(page_title="9jaStudio — AI Music Ecosystem", layout="wide")
 
-# Fetch your Hugging Face Token from your Streamlit Secrets Panel
+# Fetch your Hugging Face Token securely from Streamlit Secrets
 HF_TOKEN = os.environ.get("HF_TOKEN", "")
 
 st.title("🇳🇬 9jaStudio — AI Music Production Ecosystem")
@@ -45,23 +45,24 @@ with tab1:
                         # Construct optimized prompt strings for the model
                         optimized_prompt = f"Studio quality premium audio track. Genre: {genre_selection}. {text_prompt}. Rich {drum_profile} arrangements at {tempo} BPM."
                         
-                        # Direct Hugging Face Serverless API Endpoint path for MusicGen
-                        API_URL = "https://huggingface.co"
-                        headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+                        # FIX: Using the official InferenceClient to bypass the CloudFront 403 blocks
+                        client = InferenceClient(token=HF_TOKEN)
                         
-                        # Post request directly to the model endpoint
-                        response = requests.post(API_URL, headers=headers, json={"inputs": optimized_prompt})
+                        # Call the text-to-audio model safely
+                        audio_data = client.text_to_audio(
+                            prompt=optimized_prompt,
+                            model="facebook/musicgen-small"
+                        )
                         
-                        if response.status_code == 200:
-                            st.session_state.generated_beat_bytes = response.content
-                            st.session_state.generated_beat_name = f"9jaStudio_{tempo}BPM.wav"
-                        elif response.status_code == 503:
+                        st.session_state.generated_beat_bytes = audio_data
+                        st.session_state.generated_beat_name = f"9jaStudio_{tempo}BPM.wav"
+                        
+                    except Exception as e:
+                        # Catch if the free cluster model is waking up (loading)
+                        if "loading" in str(e).lower() or "503" in str(e):
                             st.warning("⏳ The Hugging Face server model is currently booting up in the cloud. Give it 15 seconds and try clicking generate again!")
                         else:
-                            st.error(f"Hugging Face reported an issue (Status Code {response.status_code}): {response.text}")
-                            
-                    except Exception as e:
-                        st.error(f"Engine connection layout breakdown: {str(e)}")
+                            st.error(f"Engine connection standby. Details: {str(e)}")
 
         # Keep audio file pinned safely in screen state memory
         if st.session_state.generated_beat_bytes is not None:
@@ -81,4 +82,3 @@ with tab2:
     engineer_btn = st.button("🎛️ Run Multi-Stem Mix & Master Pipeline", disabled=(uploaded_song is None))
     if engineer_btn:
         st.success("🎚️ Audio Engineering Chain complete! Mastered perfectly for streaming platforms.")
-
