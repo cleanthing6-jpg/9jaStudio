@@ -1,6 +1,6 @@
 import os
 import streamlit as st
-from huggingface_hub import InferenceClient
+import requests
 
 # 1. PAGE SETUP & GLOBAL STATUS
 st.set_page_config(page_title="9jaStudio — AI Music Ecosystem", layout="wide")
@@ -47,22 +47,23 @@ with tab1:
                         # Culturally optimized instruction prompt parameters fed to the engine
                         optimized_prompt = f"Studio quality premium audio track. Genre: {genre_selection}. {text_prompt}. Rich {drum_profile} arrangements at {tempo} BPM."
                         
-                        client = InferenceClient(token=HF_TOKEN)
+                        # PERMANENT SOLUTION: Raw HTTP Request direct to the server API (bypasses all library bugs)
+                        API_URL = "https://huggingface.co"
+                        headers = {"Authorization": f"Bearer {HF_TOKEN}"}
                         
-                        # FIX: Changed 'prompt=' to 'text=' to align perfectly with the updated Hugging Face Hub SDK parameters
-                        audio_data = client.text_to_speech(
-                            text=optimized_prompt,
-                            model="facebook/musicgen-small"
-                        )
+                        response = requests.post(API_URL, headers=headers, json={"inputs": optimized_prompt})
                         
-                        st.session_state.generated_beat_bytes = audio_data
-                        st.session_state.generated_beat_name = f"9jaStudio_{tempo}BPM.wav"
+                        if response.status_code == 200:
+                            st.session_state.generated_beat_bytes = response.content
+                            st.session_state.generated_beat_name = f"9jaStudio_{tempo}BPM.wav"
+                        elif response.status_code == 503:
+                            # 503 means the model is sleeping and needs a few seconds to wake up
+                            st.warning("⏳ The AI model is waking up in the cloud. Give it 20 seconds and click generate again!")
+                        else:
+                            st.error(f"Server reported an issue (Status {response.status_code}): {response.text}")
                         
                     except Exception as e:
-                        if "loading" in str(e).lower() or "503" in str(e):
-                            st.warning("⏳ The Hugging Face server model is currently booting up in the cloud. Give it 15 seconds and try clicking generate again!")
-                        else:
-                            st.error(f"Engine connection standby. Details: {str(e)}")
+                        st.error(f"Engine connection standby. Details: {str(e)}")
 
         # Keep output audio and working download buttons locked safely in layout memory view
         if st.session_state.generated_beat_bytes is not None:
@@ -123,4 +124,3 @@ with plan_col3:
     premium_link = "https://paystack.com" if "Naira" in currency else "https://paystack.com"
     st.write(f"**Price:** {price_pre}/Yr\n\n• **60 Songs per Year** Credit Allocation\n• Ultimate Cloud Priority Engine Access\n• Full Stem Exports + Commercial Rights")
     st.link_button("🔒 Secure Annual Pass", premium_link)
-
