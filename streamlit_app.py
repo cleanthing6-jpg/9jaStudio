@@ -1,4 +1,3 @@
-
 import os
 import streamlit as st
 import requests
@@ -7,7 +6,7 @@ import time
 # 1. SUNO CONSOLE GEOMETRY CONFIGURATION
 st.set_page_config(page_title="9jaStudio Pro — Suno Workspace", layout="wide")
 
-# Securely bind the active background network tokens
+# Fetch your token safely from your secrets box
 HF_TOKEN = st.secrets.get("HF_TOKEN", "")
 
 # Initialize permanent feed state memory so generated songs never vanish on click
@@ -45,12 +44,20 @@ with left_panel:
     if execute_suno_btn:
         with st.spinner("⚡ Spawning generation matrix... Rendering raw audio..."):
             try:
-                optimized_prompt = f"Premium audio master. Style: {genre_style}. Prompt details: {text_prompt} at {tempo} BPM."
+                optimized_prompt = f"Studio quality premium audio track. Style: {genre_style}. Prompt details: {text_prompt} at {tempo} BPM."
+                
+                # FIXED DIRECT INFERENCE PIPELINE ENDPOINT URL
                 API_URL = "https://huggingface.co"
-                headers = {"Authorization": f"Bearer {HF_TOKEN}"} if HF_TOKEN else {}
+                
+                # FIX 403: Standardized high-security authorization headers
+                headers = {
+                    "Authorization": f"Bearer {HF_TOKEN}",
+                    "Content-Type": "application/json"
+                }
                 
                 response = requests.post(API_URL, headers=headers, json={"inputs": optimized_prompt})
                 
+                # Handle model wake-up cycle (Status 503)
                 if response.status_code == 503:
                     st.warning("💤 AI Engine warming up. Retrying sequence in 10 seconds...")
                     time.sleep(10)
@@ -66,7 +73,7 @@ with left_panel:
                     })
                     st.success("🎯 Generation complete! Track routed to your sidebar feed folder.")
                 else:
-                    st.error(f"Server backend queue busy (Code {response.status_code}). Try triggering again!")
+                    st.error(f"Inference authorization barrier (Code {response.status_code}). Check token or try again!")
                     
             except Exception as e:
                 st.error(f"Operational architecture failure: {str(e)}")
@@ -119,3 +126,4 @@ with col_b:
     premium_link = "https://paystack.com" if "Naira" in currency else "https://paystack.com"
     st.write(f"### 👑 Premium Annual Pass\nPrice: **{price_pre}**\n\n• 60 Dedicated Annual Song Tokens")
     st.link_button("🔒 SECURE EXECUTIVE PASS", premium_link)
+
