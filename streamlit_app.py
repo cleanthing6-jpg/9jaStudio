@@ -42,11 +42,15 @@ with tab1:
                 try:
                     optimized_prompt = f"Studio quality premium audio track. Genre: {genre_selection}. {text_prompt}. Rich {drum_profile} arrangements at {tempo} BPM."
                     
-                    # Call Replicate
+                
+                                    # CALL REPLICATE (Updated to the standard clean deployment model)
                     output_url = replicate.run(
-                        "facebookresearch/musicgen:b05b1d0db2b2b1e102f0ed1012d2b94474a327913751345100a3c2ee8aeecbf7",
+                        "meta/musicgen:7a32f1034f9643a6d4001c238b939fa95db7b59b5d3da13541100a3c2ee8aeec",
                         input={"prompt": optimized_prompt, "duration": 15, "model_version": "melody"}
                     )
+
+    
+                    
                     
                     # FIX 1: Download the stream bytes directly into your server memory right away!
                     response = requests.get(output_url)
